@@ -297,7 +297,6 @@ function calculateSpritePoints(num) {
 }
 
 function setupPokemonMarker(item) {
-    var icon = new google.maps.MarkerImage("static/icons-sprite@2x.png", new google.maps.Size(30, 30), calculateSpritePoints(parseInt(item.pokemon_id)), new google.maps.Point(15, 15), new google.maps.Size(360, 390));
     var marker = new google.maps.Marker({
         position: {
             lat: item.latitude,
@@ -306,7 +305,11 @@ function setupPokemonMarker(item) {
         zIndex: 9999,
         optimized: false,
         map: map,
-        icon: icon,
+        icon: {
+            url: "static/svg/"+item.pokemon_id+".svg",
+            anchor: new google.maps.Point(15,15),
+            scaledSize: new google.maps.Size(30,30)
+        },
     });
 
     marker.infoWindow = new google.maps.InfoWindow({
