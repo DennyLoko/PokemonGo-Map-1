@@ -18,20 +18,19 @@ ENTRYPOINT ["python", "./runserver.py", "--host", "0.0.0.0"]
 CMD ["-h"]
 
 # Install required system packages
-RUN apk add --no-cache ca-certificates nodejs
+RUN apk add --no-cache ca-certificates
 
-# Copy Python requirements so we only rebuild deps if they have changed
-COPY requirements.txt package.json Gruntfile.js static /usr/src/app/
+# Since we're changing requirements and css so often now, it's almost guaranteed
+# that SOMETHING which requires a rebuild needs to be redone. As such, and to
+# optimize layers for distribution, this will copy in everything in a go.
+COPY . /usr/src/app/
 
-# Install all prerequisites (build base used for gcc of some python modules)
-RUN apk add --no-cache build-base \
+# Get it all installed and built then remove the build systems
+RUN apk add --no-cache build-base nodejs \
  && pip install --no-cache-dir -r requirements.txt \
  && npm install -g grunt-cli \
  && npm install \
  && npm run-script build \
  && npm uninstall -g grunt-cli \
- && npm prune --production \
- && apk del build-base
-
-# Add the rest of the app code
-COPY . /usr/src/app
+ && rm -rf node_modules \
+ && apk del build-base nodejs
